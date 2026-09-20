@@ -90,33 +90,55 @@ Output MUST be a valid JSON array of objects conforming to this schema:
   }
 ]`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const candidateModels = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  let lastError: Error | null = null;
+  let json: any = null;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.8,
+  for (const model of candidateModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.8,
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        console.warn(`Gemini model ${model} failed (${response.status}):`, errBody);
+        let parsedErr: any = null;
+        try {
+          parsedErr = JSON.parse(errBody);
+        } catch {}
+        const msg = parsedErr?.error?.message || errBody || response.statusText;
+        lastError = new Error(`Gemini API error (${response.status}): ${msg}`);
+        continue; // Try the next candidate model
       }
-    })
-  });
 
-  if (!response.ok) {
-    const errBody = await response.text();
-    console.error('Gemini API Error Response:', errBody);
-    throw new Error(`Gemini API error (${response.status}): ${response.statusText}`);
+      json = await response.json();
+      break; // Success!
+    } catch (fetchErr: any) {
+      console.warn(`Gemini request with ${model} encountered an exception:`, fetchErr);
+      lastError = fetchErr;
+    }
   }
 
-  const json = await response.json();
+  if (!json) {
+    throw lastError || new Error('All candidate Gemini models failed to generate content.');
+  }
+
   const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!rawText) {
     throw new Error('Gemini API returned an empty response.');
