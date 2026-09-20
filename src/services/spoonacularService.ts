@@ -1,7 +1,12 @@
 import type { Recipe, Ingredient, MethodStep } from '../types/types';
 import { v4 as uuidv4 } from 'uuid';
+import { NUT_INGREDIENTS, NUT_SUBSTITUTES } from '../data/commonIngredients';
 
 const cache = new Map<string, Recipe[]>();
+
+export function isApiKeyConfigured(): boolean {
+  return !!(localStorage.getItem('spoonacular_api_key') || '');
+}
 
 function getApiKey(): string {
   return localStorage.getItem('spoonacular_api_key') || '';
@@ -22,14 +27,20 @@ function mapIngredientCategory(aisle: string): Ingredient['category'] {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapSpoonacularRecipe(data: any): Recipe {
-  const ingredients: Ingredient[] = (data.extendedIngredients || []).map((ing: any) => ({
-    name: ing.nameClean || ing.name || 'Unknown',
-    amount: ing.amount ?? 0,
-    unit: ing.unit || '',
-    category: mapIngredientCategory(ing.aisle),
-    isCommon: false,
-    isNut: false,
-  }));
+  const ingredients: Ingredient[] = (data.extendedIngredients || []).map((ing: any) => {
+    const name = ing.nameClean || ing.name || 'Unknown';
+    const nameLower = name.toLowerCase();
+    const matchedNut = NUT_INGREDIENTS.find(nut => nameLower.includes(nut));
+    return {
+      name,
+      amount: ing.amount ?? 0,
+      unit: ing.unit || '',
+      category: mapIngredientCategory(ing.aisle),
+      isCommon: false,
+      isNut: !!matchedNut,
+      nutSubstitute: matchedNut ? NUT_SUBSTITUTES[matchedNut] : undefined,
+    };
+  });
 
   const method: MethodStep[] = (data.analyzedInstructions?.[0]?.steps || []).map((step: any) => ({
     stepNumber: step.number,
