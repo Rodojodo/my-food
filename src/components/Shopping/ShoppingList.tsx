@@ -246,12 +246,12 @@ export default function ShoppingList() {
                 placeholder="Item name..."
                 value={extraName}
                 onChange={e => setExtraName(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
               />
               <select 
                 value={extraCategory}
                 onChange={e => setExtraCategory(e.target.value as IngredientCategory)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white text-stone-900"
               >
                 <option value="produce">Produce</option>
                 <option value="dairy">Dairy</option>

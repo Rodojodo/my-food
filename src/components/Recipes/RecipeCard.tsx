@@ -1,29 +1,28 @@
-import React from 'react';
 import { FiClock, FiHeart, FiStar } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { Recipe } from '../../types/types';
+import { useRecipeStore } from '../../stores/recipeStore';
 
 interface RecipeCardProps {
   recipe: Recipe;
   onSelect?: (id: string) => void;
 }
 
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect }) => {
+const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
   const navigate = useNavigate();
+  const { toggleFavourite } = useRecipeStore();
 
   const handleClick = () => {
     if (onSelect) {
       onSelect(recipe.id);
     } else {
-      navigate(`/recipes/${recipe.id}`);
+      navigate(`/recipe/${recipe.id}`);
     }
   };
 
-  const handleFavouriteClick = (e: React.MouseEvent) => {
+  const handleFavouriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Assuming favourite toggle is handled via a store action, this will be handled in parent or here
-    // But since it's purely a UI component, maybe we don't have the action here.
-    // Wait, useRecipeStore is available.
+    await toggleFavourite(recipe.id);
   };
 
   return (

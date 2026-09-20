@@ -63,7 +63,7 @@ const RecipeBrowser: React.FC = () => {
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm shadow-sm transition-shadow"
+            className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm shadow-sm transition-shadow"
             placeholder="Search recipes, ingredients, tags..."
             value={filters.search}
             onChange={handleSearchChange}
@@ -111,7 +111,7 @@ const RecipeBrowser: React.FC = () => {
           <select 
             value={filters.cuisine}
             onChange={handleCuisineChange}
-            className="text-sm border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
+            className="text-sm border border-gray-300 bg-white text-gray-900 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
           >
             <option value="">All Cuisines</option>
             <option value="Italian">Italian</option>
@@ -127,7 +127,7 @@ const RecipeBrowser: React.FC = () => {
           <select 
             value={filters.source}
             onChange={handleSourceChange}
-            className="text-sm border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
+            className="text-sm border border-gray-300 bg-white text-gray-900 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
           >
             <option value="">All Sources</option>
             <option value="builtin">Built-in</option>
@@ -140,7 +140,7 @@ const RecipeBrowser: React.FC = () => {
             <select 
               value={filters.sortBy}
               onChange={handleSortChange}
-              className="text-sm border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8 bg-gray-50"
+              className="text-sm border border-gray-300 bg-white text-gray-900 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
             >
               <option value="name">Name</option>
               <option value="rating">Rating</option>

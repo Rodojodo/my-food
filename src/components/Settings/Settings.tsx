@@ -129,7 +129,7 @@ export default function Settings() {
               <select 
                 value={settings.shoppingDay}
                 onChange={e => setShoppingDay(e.target.value as DayOfWeek)}
-                className="w-full max-w-xs px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full max-w-xs px-3 py-2 border border-stone-300 rounded-md bg-white text-stone-900 shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="monday">Monday</option>
                 <option value="tuesday">Tuesday</option>
@@ -148,7 +148,7 @@ export default function Settings() {
                 type="number" min="1" max="52"
                 value={settings.semesterWeeks}
                 onChange={e => updateSettings({ semesterWeeks: parseInt(e.target.value) || 16 })}
-                className="w-full max-w-xs px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full max-w-xs px-3 py-2 border border-stone-300 rounded-md bg-white text-stone-900 shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function Settings() {
                     type={showKey ? 'text' : 'password'}
                     value={apiKeyInput}
                     onChange={e => setApiKeyInput(e.target.value)}
-                    className="w-full pl-3 pr-10 py-2 border border-stone-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full pl-3 pr-10 py-2 border border-stone-300 rounded-md bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="Enter API key..."
                   />
                   <button 

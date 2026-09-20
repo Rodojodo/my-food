@@ -110,31 +110,31 @@ const RecipeImport = () => {
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Recipe Name</label>
-              <input type="text" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.name} onChange={e => setManualRecipe({...manualRecipe, name: e.target.value})} />
+              <input type="text" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.name} onChange={e => setManualRecipe({...manualRecipe, name: e.target.value})} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cuisine</label>
-              <input type="text" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.cuisine} onChange={e => setManualRecipe({...manualRecipe, cuisine: e.target.value})} />
+              <input type="text" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.cuisine} onChange={e => setManualRecipe({...manualRecipe, cuisine: e.target.value})} />
             </div>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.description} onChange={e => setManualRecipe({...manualRecipe, description: e.target.value})} />
+            <textarea className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.description} onChange={e => setManualRecipe({...manualRecipe, description: e.target.value})} />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Servings</label>
-              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.servings} onChange={e => setManualRecipe({...manualRecipe, servings: Number(e.target.value)})} />
+              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.servings} onChange={e => setManualRecipe({...manualRecipe, servings: Number(e.target.value)})} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Prep Time (m)</label>
-              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.prepTime} onChange={e => setManualRecipe({...manualRecipe, prepTime: Number(e.target.value)})} />
+              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.prepTime} onChange={e => setManualRecipe({...manualRecipe, prepTime: Number(e.target.value)})} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cook Time (m)</label>
-              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.cookTime} onChange={e => setManualRecipe({...manualRecipe, cookTime: Number(e.target.value)})} />
+              <input type="number" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.cookTime} onChange={e => setManualRecipe({...manualRecipe, cookTime: Number(e.target.value)})} />
             </div>
             <div className="flex items-center mt-6">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -146,7 +146,7 @@ const RecipeImport = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (optional)</label>
-            <input type="text" className="w-full border-gray-300 rounded-lg p-2 border" value={manualRecipe.image} onChange={e => setManualRecipe({...manualRecipe, image: e.target.value})} />
+            <input type="text" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.image} onChange={e => setManualRecipe({...manualRecipe, image: e.target.value})} />
           </div>
 
           <div className="pt-4 border-t border-gray-100">
@@ -154,12 +154,12 @@ const RecipeImport = () => {
             <div className="space-y-3">
               {manualRecipe.ingredients?.map((ing, idx) => (
                 <div key={idx} className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
-                  <input type="number" className="w-20 border-gray-300 rounded-lg p-2 border text-sm" placeholder="Amt" value={ing.amount} onChange={e => {
+                  <input type="number" className="w-20 border-gray-300 rounded-lg p-2 border text-sm bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="Amt" value={ing.amount} onChange={e => {
                     const newIng = [...manualRecipe.ingredients!];
                     newIng[idx].amount = Number(e.target.value);
                     setManualRecipe({...manualRecipe, ingredients: newIng});
                   }} />
-                  <select className="w-24 border-gray-300 rounded-lg p-2 border text-sm" value={ing.unit} onChange={e => {
+                  <select className="w-24 border-gray-300 rounded-lg p-2 border text-sm bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={ing.unit} onChange={e => {
                     const newIng = [...manualRecipe.ingredients!];
                     newIng[idx].unit = e.target.value;
                     setManualRecipe({...manualRecipe, ingredients: newIng});
@@ -171,12 +171,12 @@ const RecipeImport = () => {
                     <option value="tsp">tsp</option>
                     <option value="whole">whole</option>
                   </select>
-                  <input type="text" className="flex-1 border-gray-300 rounded-lg p-2 border text-sm" placeholder="Ingredient name" value={ing.name} onChange={e => {
+                  <input type="text" className="flex-1 border-gray-300 rounded-lg p-2 border text-sm bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="Ingredient name" value={ing.name} onChange={e => {
                     const newIng = [...manualRecipe.ingredients!];
                     newIng[idx].name = e.target.value;
                     setManualRecipe({...manualRecipe, ingredients: newIng});
                   }} />
-                  <select className="w-32 border-gray-300 rounded-lg p-2 border text-sm" value={ing.category} onChange={e => {
+                  <select className="w-32 border-gray-300 rounded-lg p-2 border text-sm bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={ing.category} onChange={e => {
                     const newIng = [...manualRecipe.ingredients!];
                     newIng[idx].category = e.target.value as any;
                     setManualRecipe({...manualRecipe, ingredients: newIng});
@@ -203,7 +203,7 @@ const RecipeImport = () => {
               {manualRecipe.method?.map((step, idx) => (
                 <div key={idx} className="flex gap-3">
                   <div className="font-bold text-gray-400 pt-2">{idx + 1}.</div>
-                  <textarea className="flex-1 border-gray-300 rounded-lg p-2 border text-sm min-h-[80px]" placeholder="Instruction step..." value={step.instruction} onChange={e => {
+                  <textarea className="flex-1 border-gray-300 rounded-lg p-2 border text-sm min-h-[80px] bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="Instruction step..." value={step.instruction} onChange={e => {
                     const newMethod = [...manualRecipe.method!];
                     newMethod[idx].instruction = e.target.value;
                     setManualRecipe({...manualRecipe, method: newMethod});
@@ -233,7 +233,7 @@ const RecipeImport = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Recipe URL (optional)</label>
             <div className="flex gap-2">
-              <input type="text" className="flex-1 border-gray-300 rounded-lg p-2 border" placeholder="https://..." value={urlInput} onChange={e => setUrlInput(e.target.value)} />
+              <input type="text" className="flex-1 border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="https://..." value={urlInput} onChange={e => setUrlInput(e.target.value)} />
               <button onClick={handleGeneratePrompt} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
                 Generate Prompt
               </button>
@@ -257,7 +257,7 @@ const RecipeImport = () => {
           <div className="pt-4 border-t border-gray-100">
             <label className="block text-sm font-medium text-gray-700 mb-1">Paste JSON Response</label>
             <textarea 
-              className="w-full border-gray-300 rounded-lg p-3 border font-mono text-sm min-h-[200px]" 
+              className="w-full border-gray-300 rounded-lg p-3 border font-mono text-sm min-h-[200px] bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" 
               placeholder='{"name": "...", "ingredients": [...]}'
               value={jsonInput}
               onChange={e => setJsonInput(e.target.value)}

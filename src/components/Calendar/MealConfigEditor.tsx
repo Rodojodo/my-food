@@ -74,7 +74,7 @@ export default function MealConfigEditor({ currentConfig, onSave, onCancel }: Me
                       type="number" min="1" max="14"
                       value={slot.count} 
                       onChange={(e) => handleChange(i, 'count', parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white text-stone-900 shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                     />
                   </div>
                   <div>
@@ -83,7 +83,7 @@ export default function MealConfigEditor({ currentConfig, onSave, onCancel }: Me
                       type="number" min="1" max="20"
                       value={slot.servings} 
                       onChange={(e) => handleChange(i, 'servings', parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white text-stone-900 shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
                     />
                   </div>
                   <div className="flex items-end pb-2">

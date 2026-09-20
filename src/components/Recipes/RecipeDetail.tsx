@@ -233,7 +233,7 @@ const RecipeDetail = () => {
             <div className="mt-12">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Personal Notes</h3>
               <textarea 
-                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-700 min-h-[120px]"
+                className="w-full p-4 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 min-h-[120px]"
                 placeholder="Add your tweaks and tips here..."
                 defaultValue={recipe.notes || ''}
               />

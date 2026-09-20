@@ -77,26 +77,26 @@ export default function WeeklyDefaults({ onClose }: WeeklyDefaultsProps) {
                 placeholder="Item name"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="col-span-2 w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="col-span-2 w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
               />
               <input 
                 type="number" 
                 placeholder="Amount (opt)"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
               />
               <input 
                 type="text" 
                 placeholder="Unit (opt)"
                 value={unit}
                 onChange={e => setUnit(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
               />
               <select 
                 value={category}
                 onChange={e => setCategory(e.target.value as IngredientCategory)}
-                className="col-span-2 w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                className="col-span-2 w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white text-stone-900"
               >
                 <option value="produce">Produce</option>
                 <option value="dairy">Dairy</option>

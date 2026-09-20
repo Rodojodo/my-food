@@ -29,7 +29,7 @@ function RecipePickerModal({ onClose, onSelect, currentRecipeId }: { onClose: ()
               placeholder="Search recipes..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-md bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
             />
           </div>
         </div>
