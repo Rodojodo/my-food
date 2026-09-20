@@ -59,7 +59,7 @@ function mapSpoonacularRecipe(data: any): Recipe {
     isQuick: totalTime <= 30,
     isFavourite: false,
     rating: data.spoonacularScore ? Math.round((data.spoonacularScore / 100) * 5) : 0,
-    source: 'api' as const,
+    source: 'online' as const,
     sourceUrl: data.sourceUrl || undefined,
     unitSystem: 'imperial',
     dateAdded: new Date().toISOString(),

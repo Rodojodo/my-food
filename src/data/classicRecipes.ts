@@ -72,7 +72,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -157,7 +157,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -242,7 +242,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -326,7 +326,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -410,7 +410,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -495,7 +495,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -579,7 +579,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -663,7 +663,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -747,7 +747,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -832,7 +832,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -916,7 +916,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -1000,7 +1000,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -1084,7 +1084,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -1168,7 +1168,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -1252,7 +1252,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -1336,7 +1336,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -1421,7 +1421,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -1505,7 +1505,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -1590,7 +1590,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -1675,7 +1675,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -1760,7 +1760,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -1845,7 +1845,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -1929,7 +1929,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -2014,7 +2014,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -2098,7 +2098,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -2183,7 +2183,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -2267,7 +2267,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -2352,7 +2352,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -2436,7 +2436,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -2520,7 +2520,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -2604,7 +2604,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -2689,7 +2689,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -2773,7 +2773,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -2857,7 +2857,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -2942,7 +2942,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -3026,7 +3026,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -3110,7 +3110,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -3194,7 +3194,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -3279,7 +3279,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -3363,7 +3363,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -3447,7 +3447,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -3531,7 +3531,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -3615,7 +3615,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -3699,7 +3699,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -3783,7 +3783,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -3868,7 +3868,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -3952,7 +3952,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -4036,7 +4036,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -4121,7 +4121,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -4206,7 +4206,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -4291,7 +4291,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -4375,7 +4375,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -4459,7 +4459,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -4543,7 +4543,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -4627,7 +4627,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -4711,7 +4711,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -4795,7 +4795,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -4879,7 +4879,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -4963,7 +4963,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -5047,7 +5047,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -5132,7 +5132,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5216,7 +5216,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5300,7 +5300,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -5385,7 +5385,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5469,7 +5469,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5553,7 +5553,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5637,7 +5637,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -5722,7 +5722,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -5806,7 +5806,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -5890,7 +5890,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -5974,7 +5974,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -6058,7 +6058,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -6142,7 +6142,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -6226,7 +6226,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -6311,7 +6311,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": false,
     "isFavourite": false,
@@ -6395,7 +6395,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,
@@ -6479,7 +6479,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -6564,7 +6564,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": false,
     "isQuick": true,
     "isFavourite": false,
@@ -6649,7 +6649,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": true,
     "isFavourite": false,
@@ -6734,7 +6734,7 @@ export const CLASSIC_RECIPES: Recipe[] = [
       }
     ],
     "unitSystem": "metric",
-    "source": "builtin",
+    "source": "ai-generated",
     "isVegan": true,
     "isQuick": false,
     "isFavourite": false,

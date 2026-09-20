@@ -174,7 +174,12 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
     }
 
     if (filters.source) {
-      filtered = filtered.filter((r) => r.source === filters.source);
+      filtered = filtered.filter((r) => {
+        if (filters.source === 'ai-generated') return r.source === 'ai-generated' || r.source === 'builtin';
+        if (filters.source === 'online') return r.source === 'online' || r.source === 'api';
+        if (filters.source === 'imported') return r.source === 'imported';
+        return r.source === filters.source;
+      });
     }
 
     // Sort

@@ -36,7 +36,17 @@ export async function initializeDB(): Promise<void> {
   // Check if settings exist; if not, create default
   const existingSettings = await db.settings.get('app-settings');
   if (!existingSettings) {
-    await db.settings.put({ ...DEFAULT_SETTINGS, id: 'app-settings' });
+    await db.settings.put({ ...DEFAULT_SETTINGS, id: 'app-settings', migratedRecipeSources: true });
+  } else if (!existingSettings.migratedRecipeSources) {
+    // One-time migration for existing databases:
+    // 1. Existing user AI-imported recipes ('ai-generated') become 'imported'
+    await db.recipes.where('source').equals('ai-generated').modify({ source: 'imported' });
+    // 2. Existing starter recipes ('builtin') become 'ai-generated'
+    await db.recipes.where('source').equals('builtin').modify({ source: 'ai-generated' });
+    // 3. Existing Spoonacular recipes ('api') become 'online'
+    await db.recipes.where('source').equals('api').modify({ source: 'online' });
+    // Record that migration has run
+    await db.settings.update('app-settings', { migratedRecipeSources: true });
   }
 }
 
@@ -75,8 +85,14 @@ export async function importAllData(json: string): Promise<void> {
   const data = JSON.parse(json);
 
   await db.transaction('rw', [db.recipes, db.weekPlans, db.semesterPlans, db.weeklyDefaults, db.settings], async () => {
-    if (data.recipes) {
-      await db.recipes.bulkPut(data.recipes);
+    if (data.recipes && Array.isArray(data.recipes)) {
+      const normalized = data.recipes.map((r: any) => {
+        let source = r.source;
+        if (source === 'builtin') source = 'ai-generated';
+        else if (source === 'api') source = 'online';
+        return { ...r, source };
+      });
+      await db.recipes.bulkPut(normalized);
     }
     if (data.weekPlans) {
       await db.weekPlans.bulkPut(data.weekPlans);

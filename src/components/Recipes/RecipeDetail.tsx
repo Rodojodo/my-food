@@ -4,6 +4,7 @@ import { FiArrowLeft, FiClock, FiHeart, FiStar, FiPrinter, FiTrash2, FiMinus, Fi
 import { useRecipeStore } from '../../stores/recipeStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { convertIngredient, scaleIngredient } from '../../utils/conversion';
+import { getSourceLabel } from '../../types/types';
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,7 +74,7 @@ const RecipeDetail = () => {
           <button onClick={handlePrint} className="p-2 bg-white/80 backdrop-blur rounded-full hover:bg-white transition-colors shadow-sm">
             <FiPrinter className="w-6 h-6 text-gray-700" />
           </button>
-          {(recipe.source === 'imported' || recipe.source === 'api') && (
+          {(recipe.source === 'imported' || recipe.source === 'online' || recipe.source === 'api') && (
             <button onClick={handleDelete} className="p-2 bg-white/80 backdrop-blur rounded-full hover:bg-red-50 text-red-500 transition-colors shadow-sm">
               <FiTrash2 className="w-6 h-6" />
             </button>
@@ -86,8 +87,14 @@ const RecipeDetail = () => {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium uppercase tracking-wider">
-                {recipe.source}
+              <span className={`px-2.5 py-1 text-xs rounded-md font-medium tracking-wider ${
+                recipe.source === 'online' || recipe.source === 'api' 
+                  ? 'bg-sky-100 text-sky-800' 
+                  : recipe.source === 'imported' 
+                  ? 'bg-emerald-100 text-emerald-800' 
+                  : 'bg-purple-100 text-purple-800'
+              }`}>
+                {getSourceLabel(recipe.source)}
               </span>
               {recipe.isVegan && (
                 <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-md font-medium">Vegan</span>

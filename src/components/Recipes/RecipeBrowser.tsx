@@ -130,9 +130,9 @@ const RecipeBrowser: React.FC = () => {
             className="text-sm border border-gray-300 bg-white text-gray-900 rounded-lg focus:ring-orange-500 focus:border-orange-500 py-1.5 pl-3 pr-8"
           >
             <option value="">All Sources</option>
-            <option value="builtin">Built-in</option>
+            <option value="ai-generated">AI Generated</option>
             <option value="imported">Imported</option>
-            <option value="api">API</option>
+            <option value="online">Online</option>
           </select>
 
           <div className="ml-auto flex items-center gap-3">

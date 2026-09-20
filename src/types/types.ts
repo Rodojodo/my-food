@@ -12,7 +12,21 @@ export type MealTime = 'lunch' | 'dinner';
 
 export type UnitSystem = 'imperial' | 'metric';
 
-export type RecipeSource = 'builtin' | 'imported' | 'api' | 'ai-generated';
+export type RecipeSource = 'ai-generated' | 'imported' | 'online' | 'builtin' | 'api';
+
+export function getSourceLabel(source?: RecipeSource | string): string {
+  switch (source) {
+    case 'ai-generated':
+    case 'builtin':
+      return 'AI Generated';
+    case 'online':
+    case 'api':
+      return 'Online';
+    case 'imported':
+    default:
+      return 'Imported';
+  }
+}
 
 export type IngredientCategory =
   | 'produce'
@@ -161,6 +175,7 @@ export interface AppSettings {
   googleCalendarConnected: boolean;
   spoonacularApiKey: string;
   semesterWeeks: number;
+  migratedRecipeSources?: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {

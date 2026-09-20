@@ -1,6 +1,7 @@
 import { FiClock, FiHeart, FiStar } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { Recipe } from '../../types/types';
+import { getSourceLabel } from '../../types/types';
 import { useRecipeStore } from '../../stores/recipeStore';
 
 interface RecipeCardProps {
@@ -65,6 +66,15 @@ const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
           )}
           <span className="px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-md font-medium capitalize">
             {recipe.cuisine}
+          </span>
+          <span className={`px-2 py-1 text-xs rounded-md font-medium ${
+            recipe.source === 'online' || recipe.source === 'api'
+              ? 'bg-sky-50 text-sky-700'
+              : recipe.source === 'imported'
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-purple-50 text-purple-700'
+          }`}>
+            {getSourceLabel(recipe.source)}
           </span>
         </div>
         

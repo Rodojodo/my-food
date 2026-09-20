@@ -75,7 +75,7 @@ const RecipeImport = () => {
         totalTime,
         isQuick: totalTime <= 30,
         tags: parsed.tags || [],
-        source: 'ai-generated' as const,
+        source: 'imported' as const,
         unitSystem: parsed.unitSystem || 'metric',
       } as Parameters<typeof addRecipe>[0];
       
