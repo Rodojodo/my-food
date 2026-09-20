@@ -102,18 +102,64 @@ export async function searchRecipes(query: string, options: { vegan?: boolean; o
   }
 }
 
+const DESSERT_KEYWORDS = [
+  'dessert', 'cake', 'cookie', 'cookies', 'pie', 'brownie', 'brownies',
+  'pudding', 'ice cream', 'cupcake', 'cupcakes', 'cheesecake', 'pastry',
+  'pastries', 'tart', 'tarts', 'donut', 'doughnut', 'donuts', 'doughnuts',
+  'muffin', 'muffins', 'fudge', 'parfait', 'sorbet', 'sweet roll', 'pancake',
+  'pancakes', 'waffle', 'waffles', 'scone', 'scones', 'biscuit', 'frosting',
+  'caramel', 'custard', 'candy', 'truffle', 'truffles', 'crepe', 'crepes'
+];
+
+const NON_MEAL_DISHTYPES = new Set([
+  'dessert', 'snack', 'appetizer', 'drink', 'beverage', 'fingerfood', 'sauce'
+]);
+
+function isDessertOrNonMeal(data: any): boolean {
+  // Check dishTypes from Spoonacular
+  const dishTypes: string[] = (data.dishTypes || []).map((t: string) => t.toLowerCase());
+  if (dishTypes.some(type => NON_MEAL_DISHTYPES.has(type))) {
+    // If it's explicitly classified as dessert or snack and NOT also main course/dinner/lunch
+    const isMainCourse = dishTypes.some(type => 
+      type.includes('main') || type.includes('dinner') || type.includes('lunch') || type.includes('soup') || type.includes('salad')
+    );
+    if (!isMainCourse || dishTypes.includes('dessert')) {
+      return true;
+    }
+  }
+
+  // Check title
+  const title = (data.title || '').toLowerCase();
+  for (const word of DESSERT_KEYWORDS) {
+    // Check whole word boundary match or inclusion
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    if (regex.test(title)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export async function getRandomRecipes(count: number, options: { vegan?: boolean } = {}): Promise<Recipe[]> {
   const apiKey = getApiKey();
   if (!apiKey) return [];
 
-  const tags = options.vegan ? 'vegan' : 'vegetarian';
-  const url = `https://api.spoonacular.com/recipes/random?number=${count}&tags=${tags}&apiKey=${apiKey}`;
+  const dietTag = options.vegan ? 'vegan' : 'vegetarian';
+  // Include 'main course' in tags to encourage savory meals from Spoonacular
+  // Request a bit more than count to account for dessert filtering
+  const fetchCount = Math.max(count * 2, 15);
+  const url = `https://api.spoonacular.com/recipes/random?number=${fetchCount}&tags=${dietTag}&apiKey=${apiKey}`;
 
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`API request failed: ${res.status}`);
     const data = await res.json();
-    return (data.recipes || []).map(mapSpoonacularRecipe);
+    const rawRecipes: any[] = data.recipes || [];
+    
+    // Filter out desserts, sweets, and non-meal recipes
+    const filtered = rawRecipes.filter(r => !isDessertOrNonMeal(r));
+    return filtered.slice(0, count).map(mapSpoonacularRecipe);
   } catch (error) {
     console.error('Error getting random recipes:', error);
     return [];

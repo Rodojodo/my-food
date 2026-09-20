@@ -55,11 +55,12 @@ Generate exactly ${count} unique, appealing, full-length dinner/lunch recipes.
 
 CRITICAL RULES:
 1. ${dietRequirement}
-2. STRICTLY NUT-FREE: Absolutely NO peanuts, tree nuts (almonds, cashews, walnuts, pecans, pine nuts, pistachios, hazelnuts, macadamias), or nut products. If a dish traditionally uses nuts for crunch or garnish, substitute sunflower seeds or pumpkin seeds.
-3. ${exclusionText}
-4. Provide a diverse variety of cuisines (e.g. Italian, Mexican, Indian, Mediterranean, Asian, Middle Eastern, etc.).
-5. Ingredients must include precise amounts in metric units (g, ml, tbsp, tsp, piece, can, cup) and category: "produce", "dairy", "grains", "canned", "spices", "oils", "frozen", "bakery", "condiments", "protein", or "other".
-6. Method steps must be clear and actionable. If a step involves boiling, simmering, or baking for a specific duration, include "timerMinutes".
+2. SAVORY MEALS ONLY: Strictly lunch, dinner, soups, hearty salads, or main dishes. Absolutely NO desserts, cakes, cookies, sweet pies, puddings, sweet baked goods, or breakfast pastries.
+3. STRICTLY NUT-FREE: Absolutely NO peanuts, tree nuts (almonds, cashews, walnuts, pecans, pine nuts, pistachios, hazelnuts, macadamias), or nut products. If a dish traditionally uses nuts for crunch or garnish, substitute sunflower seeds or pumpkin seeds.
+4. ${exclusionText}
+5. Provide a diverse variety of cuisines (e.g. Italian, Mexican, Indian, Mediterranean, Asian, Middle Eastern, etc.).
+6. Ingredients must include precise amounts in metric units (g, ml, tbsp, tsp, piece, can, cup) and category: "produce", "dairy", "grains", "canned", "spices", "oils", "frozen", "bakery", "condiments", "protein", or "other".
+7. Method steps must be clear and actionable. If a step involves boiling, simmering, or baking for a specific duration, include "timerMinutes".
 
 Output MUST be a valid JSON array of objects conforming to this schema:
 [
