@@ -174,8 +174,10 @@ export interface AppSettings {
   darkMode: boolean;
   googleCalendarConnected: boolean;
   spoonacularApiKey: string;
+  geminiApiKey: string;
   semesterWeeks: number;
   migratedRecipeSources?: boolean;
+  isPurgedBuiltin?: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -185,6 +187,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   darkMode: false,
   googleCalendarConnected: false,
   spoonacularApiKey: '',
+  geminiApiKey: '',
   semesterWeeks: 16,
 };
 

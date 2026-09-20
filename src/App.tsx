@@ -15,13 +15,12 @@ import { useSettingsStore } from './stores/settingsStore';
 import { useRecipeStore } from './stores/recipeStore';
 import { usePlanStore } from './stores/planStore';
 import { initializeDB } from './stores/db';
-import { CLASSIC_RECIPES } from './data/classicRecipes';
 import { FiCompass } from 'react-icons/fi';
 import './app.css';
 
 export default function App() {
   const { loadSettings } = useSettingsStore();
-  const { loadRecipes, addRecipes } = useRecipeStore();
+  const { loadRecipes } = useRecipeStore();
   const { loadPlans } = usePlanStore();
   const [initialized, setInitialized] = useState(false);
   const [showSwipe, setShowSwipe] = useState(false);
@@ -32,13 +31,6 @@ export default function App() {
       await loadSettings();
       await loadRecipes();
       await loadPlans();
-
-      // Seed built-in recipes on first run
-      const currentRecipes = useRecipeStore.getState().recipes;
-      if (currentRecipes.length === 0 && CLASSIC_RECIPES) {
-        await addRecipes(CLASSIC_RECIPES);
-      }
-
       setInitialized(true);
     };
     initApp();

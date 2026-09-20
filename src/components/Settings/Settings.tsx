@@ -5,15 +5,22 @@ import type { DayOfWeek } from '../../types/types';
 import { exportAllData, importAllData, db } from '../../stores/db';
 
 export default function Settings() {
-  const { settings, toggleDarkMode, toggleVeganOnly, setUnitSystem, setShoppingDay, setApiKey, updateSettings } = useSettingsStore();
+  const { settings, toggleDarkMode, toggleVeganOnly, setUnitSystem, setShoppingDay, setApiKey, setGeminiApiKey, updateSettings } = useSettingsStore();
   const [showKey, setShowKey] = useState(false);
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [apiKeyInput, setApiKeyInput] = useState(settings.spoonacularApiKey || '');
+  const [geminiKeyInput, setGeminiKeyInput] = useState(settings.geminiApiKey || '');
 
   const handleSaveApiKey = () => {
     setApiKey(apiKeyInput);
-    alert('API Key saved successfully.');
+    alert('Spoonacular API Key saved successfully.');
+  };
+
+  const handleSaveGeminiKey = () => {
+    setGeminiApiKey(geminiKeyInput);
+    alert('Google Gemini API Key saved successfully.');
   };
 
   const handleExport = async () => {
@@ -161,7 +168,7 @@ export default function Settings() {
           <div className="p-6 space-y-6">
             <div>
               <h3 className="font-medium text-stone-800 mb-2">Spoonacular API Key</h3>
-              <p className="text-sm text-stone-500 mb-4">Used for fetching external recipes and AI generation.</p>
+              <p className="text-sm text-stone-500 mb-4">Used for fetching live web recipes for Discovery Swipe (80% of cards).</p>
               <div className="flex gap-2 max-w-md">
                 <div className="relative flex-1">
                   <input 
@@ -169,22 +176,55 @@ export default function Settings() {
                     value={apiKeyInput}
                     onChange={e => setApiKeyInput(e.target.value)}
                     className="w-full pl-3 pr-10 py-2 border border-stone-300 rounded-md bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
-                    placeholder="Enter API key..."
+                    placeholder="Enter Spoonacular API key..."
                   />
                   <button 
                     onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600"
+                    className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600 cursor-pointer"
                   >
                     {showKey ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                   </button>
                 </div>
                 <button 
                   onClick={handleSaveApiKey}
-                  className="px-4 py-2 bg-stone-800 text-white rounded-md hover:bg-stone-900 font-medium transition-colors"
+                  className="px-4 py-2 bg-stone-800 text-white rounded-md hover:bg-stone-900 font-medium transition-colors cursor-pointer"
                 >
                   Save
                 </button>
               </div>
+            </div>
+
+            <div className="border-t border-stone-100 pt-6">
+              <h3 className="font-medium text-stone-800 mb-2">Google Gemini API Key</h3>
+              <p className="text-sm text-stone-500 mb-4">
+                Used to generate novel, tailored vegetarian recipes on demand without duplicates (20% of Discovery Swipe).
+              </p>
+              <div className="flex gap-2 max-w-md">
+                <div className="relative flex-1">
+                  <input 
+                    type={showGeminiKey ? 'text' : 'password'}
+                    value={geminiKeyInput}
+                    onChange={e => setGeminiKeyInput(e.target.value)}
+                    className="w-full pl-3 pr-10 py-2 border border-stone-300 rounded-md bg-white text-stone-900 placeholder-stone-400 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="Enter Gemini API key..."
+                  />
+                  <button 
+                    onClick={() => setShowGeminiKey(!showGeminiKey)}
+                    className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600 cursor-pointer"
+                  >
+                    {showGeminiKey ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  </button>
+                </div>
+                <button 
+                  onClick={handleSaveGeminiKey}
+                  className="px-4 py-2 bg-stone-800 text-white rounded-md hover:bg-stone-900 font-medium transition-colors cursor-pointer"
+                >
+                  Save
+                </button>
+              </div>
+              <p className="text-xs text-stone-400 mt-2">
+                Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline text-emerald-600 hover:text-emerald-700">Google AI Studio</a>.
+              </p>
             </div>
 
             <div className="border-t border-stone-100 pt-6">

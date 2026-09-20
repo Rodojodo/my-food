@@ -1,50 +1,100 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from 'react';
-import { FiX, FiHeart, FiClock, FiStar, FiKey, FiExternalLink, FiLoader, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiX, FiHeart, FiClock, FiStar, FiKey, FiExternalLink, FiLoader, FiCheck, FiEye, FiEyeOff, FiCpu, FiGlobe } from 'react-icons/fi';
 import { useRecipeStore } from '../../stores/recipeStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import type { Recipe } from '../../types/types';
-import { getRandomRecipes, isApiKeyConfigured } from '../../services/spoonacularService';
+import { getRandomRecipes, isApiKeyConfigured as isSpoonacularConfigured } from '../../services/spoonacularService';
+import { generateGeminiBatch, isGeminiConfigured } from '../../services/geminiService';
+import { getGeminiBank, saveGeminiBank, removeGeminiSpare } from '../../stores/db';
 
 interface SwipeDiscoveryProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface SwipeCard extends Recipe {
+  _isGeminiCandidate?: boolean;
+}
+
 export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps) {
-  const { addRecipe, rejectRecipe, toggleFavourite, recipes } = useRecipeStore();
-  const { settings, setApiKey } = useSettingsStore();
+  const { addRecipe, rejectRecipe, toggleFavourite } = useRecipeStore();
+  const { settings, setApiKey, setGeminiApiKey } = useSettingsStore();
 
   const [veganOnly, setVeganOnly] = useState(settings.veganOnly);
   const [quickOnly, setQuickOnly] = useState(false);
-  const [cards, setCards] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasApiKey, setHasApiKey] = useState(isApiKeyConfigured());
 
-  // API Key modal state
+  // Card deck & queues
+  const [cards, setCards] = useState<SwipeCard[]>([]);
+  const [geminiBank, setGeminiBank] = useState<Recipe[]>([]);
+  const [spoonacularBuffer, setSpoonacularBuffer] = useState<Recipe[]>([]);
+
+  // Loading & generation states
+  const [isLoadingSpoonacular, setIsLoadingSpoonacular] = useState(false);
+  const [isGeneratingGemini, setIsGeneratingGemini] = useState(false);
+
+  // Key configurations
+  const [hasSpoonacularKey, setHasSpoonacularKey] = useState(isSpoonacularConfigured());
+  const [hasGeminiKey, setHasGeminiKey] = useState(isGeminiConfigured());
+
+  // API Key modal
   const [showKeyModal, setShowKeyModal] = useState(false);
-  const [inputKey, setInputKey] = useState(settings.spoonacularApiKey || '');
-  const [showKeyText, setShowKeyText] = useState(false);
-  const [keySavedMessage, setKeySavedMessage] = useState(false);
+  const [inputSpoonacularKey, setInputSpoonacularKey] = useState(settings.spoonacularApiKey || '');
+  const [inputGeminiKey, setInputGeminiKey] = useState(settings.geminiApiKey || '');
+  const [showSpoonKeyText, setShowSpoonKeyText] = useState(false);
+  const [showGemKeyText, setShowGemKeyText] = useState(false);
+  const [keySavedMessage, setKeySavedMessage] = useState('');
 
-  // Swipe animation states
+  // Swipe gesture & animation states
   const [drag, setDrag] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [flyOut, setFlyOut] = useState<null | 'left' | 'right' | 'up'>(null);
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const isFetchingRef = useRef(false);
+  const isFetchingSpoonacularRef = useRef(false);
+  const isGeneratingGeminiRef = useRef(false);
 
-  // Helper to fetch online recipes from Spoonacular
-  const fetchOnlineRecipes = useCallback(async (count = 8): Promise<Recipe[]> => {
+  // --- Background Gemini Generator ---
+  // Replenishes the spare bank with 10 unique recipes, passing all current recipes as exclusions
+  const replenishGeminiBank = useCallback(async () => {
+    if (isGeneratingGeminiRef.current || !isGeminiConfigured()) return;
+
     try {
-      isFetchingRef.current = true;
-      setIsLoading(true);
-      const onlineRecipes = await getRandomRecipes(count, { vegan: veganOnly });
+      isGeneratingGeminiRef.current = true;
+      setIsGeneratingGemini(true);
 
-      const existingNames = new Set(recipes.map(r => r.name.toLowerCase()));
-      let filtered = onlineRecipes.filter(r => !existingNames.has(r.name.toLowerCase()));
+      // Collect all current recipe names in the user's saved bank
+      const currentSavedNames = useRecipeStore.getState().recipes.map(r => r.name);
+      
+      const newTen = await generateGeminiBatch(currentSavedNames, {
+        veganOnly,
+        count: 10,
+      });
+
+      if (newTen.length > 0) {
+        await saveGeminiBank(newTen);
+        setGeminiBank(newTen);
+      }
+    } catch (err) {
+      console.error('Gemini batch generation failed:', err);
+    } finally {
+      setIsGeneratingGemini(false);
+      isGeneratingGeminiRef.current = false;
+    }
+  }, [veganOnly]);
+
+  // --- Spoonacular Fetcher ---
+  const fetchSpoonacularRecipes = useCallback(async (count = 10): Promise<Recipe[]> => {
+    if (isFetchingSpoonacularRef.current || !isSpoonacularConfigured()) return [];
+
+    try {
+      isFetchingSpoonacularRef.current = true;
+      setIsLoadingSpoonacular(true);
+
+      const fetched = await getRandomRecipes(count, { vegan: veganOnly });
+      const currentNames = new Set(useRecipeStore.getState().recipes.map(r => r.name.toLowerCase()));
+      let filtered = fetched.filter(r => !currentNames.has(r.name.toLowerCase()));
 
       if (quickOnly) {
         filtered = filtered.filter(r => r.isQuick);
@@ -52,89 +102,176 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
 
       return filtered;
     } catch (err) {
-      console.error('Failed to fetch online recipes:', err);
+      console.error('Spoonacular fetch failed:', err);
       return [];
     } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
+      setIsLoadingSpoonacular(false);
+      isFetchingSpoonacularRef.current = false;
     }
-  }, [veganOnly, quickOnly, recipes]);
+  }, [veganOnly, quickOnly]);
 
-  // Helper to get fallback cards from the local recipe pool (80 built-in recipes)
-  const getLocalCards = useCallback((): Recipe[] => {
-    const existingNames = new Set(cards.map(c => c.name.toLowerCase()));
-    let pool = recipes.filter(r => !r.isFavourite && !r.rejected && !existingNames.has(r.name.toLowerCase()));
+  // Helper to draw the next card according to 80% Spoonacular / 20% Gemini
+  const buildNextCards = useCallback((
+    targetCount: number,
+    currentDeck: SwipeCard[],
+    currentGemini: Recipe[],
+    currentSpoon: Recipe[]
+  ): { newCards: SwipeCard[]; remainingGemini: Recipe[]; remainingSpoon: Recipe[] } => {
+    const needed = targetCount - currentDeck.length;
+    if (needed <= 0) {
+      return { newCards: currentDeck, remainingGemini: currentGemini, remainingSpoon: currentSpoon };
+    }
 
-    if (veganOnly) pool = pool.filter(r => r.isVegan);
-    if (quickOnly) pool = pool.filter(r => r.isQuick);
+    const added: SwipeCard[] = [];
+    const updatedGemini = [...currentGemini];
+    const updatedSpoon = [...currentSpoon];
 
-    // Shuffle randomly
-    return [...pool].sort(() => Math.random() - 0.5);
-  }, [cards, recipes, veganOnly, quickOnly]);
+    for (let i = 0; i < needed; i++) {
+      // 20% chance of Gemini, 80% chance of Spoonacular
+      // (While Gemini is generating or empty, only Spoonacular recipes are used)
+      const canUseGemini = updatedGemini.length > 0 && !isGeneratingGeminiRef.current;
+      const roll = Math.random();
 
-  // Initial load when modal opens or filter changes
+      if (canUseGemini && (roll < 0.20 || updatedSpoon.length === 0)) {
+        const geminiCard = updatedGemini.shift()!;
+        added.push({
+          ...geminiCard,
+          _isGeminiCandidate: true,
+          source: 'ai-generated',
+        });
+      } else if (updatedSpoon.length > 0) {
+        const spoonCard = updatedSpoon.shift()!;
+        added.push({
+          ...spoonCard,
+          _isGeminiCandidate: false,
+          source: 'online',
+        });
+      }
+    }
+
+    return {
+      newCards: [...currentDeck, ...added],
+      remainingGemini: updatedGemini,
+      remainingSpoon: updatedSpoon,
+    };
+  }, []);
+
+  // --- Initial Load on Modal Open ---
   useEffect(() => {
     if (!isOpen) return;
 
-    const apiKeyAvailable = isApiKeyConfigured();
-    setHasApiKey(apiKeyAvailable);
+    const spoonOk = isSpoonacularConfigured();
+    const geminiOk = isGeminiConfigured();
+    setHasSpoonacularKey(spoonOk);
+    setHasGeminiKey(geminiOk);
+
     setCards([]);
     setFlyOut(null);
     setDrag({ x: 0, y: 0 });
 
-    const loadInitial = async () => {
-      if (apiKeyAvailable) {
-        const live = await fetchOnlineRecipes(8);
-        if (live.length > 0) {
-          setCards(live);
-          return;
-        }
+    const initDeck = async () => {
+      // 1. Load spare Gemini bank from IndexedDB
+      let storedGemini = await getGeminiBank();
+
+      // If Gemini bank is empty and Gemini key is configured, trigger replenishment in background
+      if (storedGemini.length === 0 && geminiOk) {
+        replenishGeminiBank();
       }
-      // Fallback to built-in recipes
-      setCards(getLocalCards());
+      setGeminiBank(storedGemini);
+
+      // 2. Fetch initial batch of Spoonacular recipes
+      let spoonRecipes: Recipe[] = [];
+      if (spoonOk) {
+        spoonRecipes = await fetchSpoonacularRecipes(12);
+        setSpoonacularBuffer(spoonRecipes);
+      }
+
+      // 3. Assemble initial deck of cards using 80/20 ratio
+      const { newCards, remainingGemini, remainingSpoon } = buildNextCards(
+        5,
+        [],
+        storedGemini,
+        spoonRecipes
+      );
+
+      setCards(newCards);
+      setGeminiBank(remainingGemini);
+      setSpoonacularBuffer(remainingSpoon);
     };
 
-    loadInitial();
+    initDeck();
   }, [isOpen, veganOnly, quickOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Infinite swipe pagination: auto-fetch more when cards run low (< 3)
+  // --- Deck Top-Up Listener ---
   useEffect(() => {
-    if (!isOpen || isFetchingRef.current) return;
+    if (!isOpen) return;
 
-    if (cards.length > 0 && cards.length <= 2) {
-      if (hasApiKey) {
-        fetchOnlineRecipes(6).then(more => {
+    // If deck has <= 2 cards, replenish deck and background buffers
+    if (cards.length <= 2) {
+      // If spoonacular buffer is running low, fetch more in background
+      if (spoonacularBuffer.length <= 3 && hasSpoonacularKey && !isFetchingSpoonacularRef.current) {
+        fetchSpoonacularRecipes(10).then(more => {
           if (more.length > 0) {
-            setCards(prev => [...prev, ...more]);
-          } else {
-            const local = getLocalCards();
-            if (local.length > 0) setCards(prev => [...prev, ...local.slice(0, 5)]);
+            setSpoonacularBuffer(prev => [...prev, ...more]);
           }
         });
-      } else {
-        const local = getLocalCards();
-        if (local.length > 0) {
-          setCards(prev => [...prev, ...local.slice(0, 5)]);
-        }
+      }
+
+      // Check if Gemini bank has run out -> trigger 10 more
+      if (geminiBank.length === 0 && hasGeminiKey && !isGeneratingGeminiRef.current) {
+        replenishGeminiBank();
+      }
+
+      // Top up deck to 5 cards
+      if (spoonacularBuffer.length > 0 || geminiBank.length > 0) {
+        const { newCards, remainingGemini, remainingSpoon } = buildNextCards(
+          5,
+          cards,
+          geminiBank,
+          spoonacularBuffer
+        );
+        setCards(newCards);
+        setGeminiBank(remainingGemini);
+        setSpoonacularBuffer(remainingSpoon);
       }
     }
-  }, [cards.length, isOpen, hasApiKey, fetchOnlineRecipes, getLocalCards]);
+  }, [cards.length, isOpen, geminiBank, spoonacularBuffer, hasSpoonacularKey, hasGeminiKey, buildNextCards, fetchSpoonacularRecipes, replenishGeminiBank]);
 
-  const handleSaveApiKey = async () => {
-    const trimmed = inputKey.trim();
-    if (!trimmed) return;
-    await setApiKey(trimmed);
-    setHasApiKey(true);
-    setKeySavedMessage(true);
+  // Handle saving API keys from modal
+  const handleSaveKeys = async () => {
+    let savedAny = false;
+    if (inputSpoonacularKey.trim()) {
+      await setApiKey(inputSpoonacularKey.trim());
+      setHasSpoonacularKey(true);
+      savedAny = true;
+    }
+    if (inputGeminiKey.trim()) {
+      await setGeminiApiKey(inputGeminiKey.trim());
+      setHasGeminiKey(true);
+      savedAny = true;
+    }
 
-    setTimeout(async () => {
-      setShowKeyModal(false);
-      setKeySavedMessage(false);
-      const live = await fetchOnlineRecipes(8);
-      if (live.length > 0) {
-        setCards(live);
-      }
-    }, 1000);
+    if (savedAny) {
+      setKeySavedMessage('API keys saved! Initializing live discovery...');
+      setTimeout(async () => {
+        setShowKeyModal(false);
+        setKeySavedMessage('');
+
+        // Trigger Gemini bank replenishment if needed
+        if (inputGeminiKey.trim()) {
+          replenishGeminiBank();
+        }
+        // Fetch Spoonacular cards
+        if (inputSpoonacularKey.trim()) {
+          const spoon = await fetchSpoonacularRecipes(10);
+          setSpoonacularBuffer(spoon);
+          const { newCards, remainingGemini, remainingSpoon } = buildNextCards(5, cards, geminiBank, spoon);
+          setCards(newCards);
+          setGeminiBank(remainingGemini);
+          setSpoonacularBuffer(remainingSpoon);
+        }
+      }, 1000);
+    }
   };
 
   if (!isOpen) return null;
@@ -151,7 +288,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
     if (!isDragging) return;
     setDrag({
       x: clientX - startPos.x,
-      y: clientY - startPos.y
+      y: clientY - startPos.y,
     });
   };
 
@@ -166,7 +303,6 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
     } else if (drag.y < -SWIPE_THRESHOLD && Math.abs(drag.x) < SWIPE_THRESHOLD) {
       handleAction('favourite');
     } else {
-      // Spring back
       setDrag({ x: 0, y: 0 });
     }
   };
@@ -174,36 +310,70 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
   const handleAction = async (action: 'like' | 'skip' | 'favourite') => {
     if (!currentCard) return;
 
-    // Trigger animation
+    const isGemini = !!currentCard._isGeminiCandidate;
+    const recipeId = currentCard.id;
+
     if (action === 'like') setFlyOut('right');
     else if (action === 'skip') setFlyOut('left');
     else if (action === 'favourite') setFlyOut('up');
 
-    // Perform state update after animation
     setTimeout(async () => {
-      const { id, isFavourite, rating, dateAdded, timesUsed, ...recipeData } = currentCard;
-      if (action === 'like') {
-        await addRecipe(recipeData);
-      } else if (action === 'favourite') {
-        const added = await addRecipe(recipeData);
-        await toggleFavourite(added.id);
-      } else if (action === 'skip') {
-        await rejectRecipe(id);
+      // 1. Handle Gemini vs Spoonacular storage
+      if (isGemini) {
+        if (action === 'skip') {
+          // SWIPED NO: Permanently delete from Gemini bank
+          await removeGeminiSpare(recipeId);
+        } else {
+          // SWIPED YES (like or favourite): Permanently add to saved recipes bank
+          const { id: _, isFavourite: __, rating: ___, dateAdded: ____, timesUsed: _____, _isGeminiCandidate: ______, ...recipeData } = currentCard;
+          const added = await addRecipe({
+            ...recipeData,
+            source: 'ai-generated',
+          });
+
+          if (action === 'favourite') {
+            await toggleFavourite(added.id);
+          }
+
+          // Remove from spare bank now that it's in the permanent bank
+          await removeGeminiSpare(recipeId);
+        }
+
+        // Check if Gemini bank has run out -> replenish 10 more!
+        const remaining = await getGeminiBank();
+        setGeminiBank(remaining);
+        if (remaining.length === 0 && hasGeminiKey && !isGeneratingGeminiRef.current) {
+          replenishGeminiBank();
+        }
+      } else {
+        // Spoonacular recipe
+        if (action === 'like' || action === 'favourite') {
+          const { id: _, isFavourite: __, rating: ___, dateAdded: ____, timesUsed: _____, _isGeminiCandidate: ______, ...recipeData } = currentCard;
+          const added = await addRecipe({
+            ...recipeData,
+            source: 'online',
+          });
+          if (action === 'favourite') {
+            await toggleFavourite(added.id);
+          }
+        } else if (action === 'skip') {
+          await rejectRecipe(recipeId);
+        }
       }
-      
+
+      // Remove card from active deck
       setCards(prev => prev.slice(1));
       setFlyOut(null);
       setDrag({ x: 0, y: 0 });
     }, 300);
   };
 
-  // Mouse events
+  // Mouse & Touch bindings
   const onMouseDown = (e: ReactMouseEvent) => handleStart(e.clientX, e.clientY);
   const onMouseMove = (e: ReactMouseEvent) => handleMove(e.clientX, e.clientY);
   const onMouseUp = () => handleEnd();
   const onMouseLeave = () => isDragging && handleEnd();
 
-  // Touch events
   const onTouchStart = (e: ReactTouchEvent) => handleStart(e.touches[0].clientX, e.touches[0].clientY);
   const onTouchMove = (e: ReactTouchEvent) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
   const onTouchEnd = () => handleEnd();
@@ -212,20 +382,17 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
     if (index === 0) {
       const flyX = flyOut === 'right' ? window.innerWidth : flyOut === 'left' ? -window.innerWidth : 0;
       const flyY = flyOut === 'up' ? -window.innerHeight : 0;
-      
       const targetX = flyOut ? flyX : drag.x;
       const targetY = flyOut ? flyY : drag.y;
-      
       const rotate = targetX * 0.1;
-      
+
       return {
         transform: `translate(${targetX}px, ${targetY}px) rotate(${rotate}deg)`,
         transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
         zIndex: 10,
       };
     }
-    
-    // Background cards
+
     const offset = index * 10;
     const scale = 1 - index * 0.05;
     return {
@@ -238,33 +405,30 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
 
   const renderOverlays = () => {
     if (!currentCard) return null;
-    
+
     const likeOpacity = Math.min(Math.max(drag.x / SWIPE_THRESHOLD, 0), 1);
     const skipOpacity = Math.min(Math.max(-drag.x / SWIPE_THRESHOLD, 0), 1);
     const favOpacity = Math.min(Math.max(-drag.y / SWIPE_THRESHOLD, 0), 1);
 
     return (
       <>
-        {/* Like Overlay */}
-        <div 
-          className="absolute inset-0 bg-green-500/20 rounded-2xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
+        <div
+          className="absolute inset-0 bg-green-500/20 rounded-3xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
           style={{ opacity: flyOut === 'right' ? 1 : (flyOut ? 0 : likeOpacity) }}
         >
-          <div className="border-4 border-green-500 text-green-500 text-6xl font-black p-4 rounded-xl rotate-[-20deg]">LIKE</div>
+          <div className="border-4 border-green-500 text-green-500 text-6xl font-black p-4 rounded-2xl rotate-[-20deg]">LIKE</div>
         </div>
-        {/* Skip Overlay */}
-        <div 
-          className="absolute inset-0 bg-red-500/20 rounded-2xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
+        <div
+          className="absolute inset-0 bg-red-500/20 rounded-3xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
           style={{ opacity: flyOut === 'left' ? 1 : (flyOut ? 0 : skipOpacity) }}
         >
-          <div className="border-4 border-red-500 text-red-500 text-6xl font-black p-4 rounded-xl rotate-[20deg]">NOPE</div>
+          <div className="border-4 border-red-500 text-red-500 text-6xl font-black p-4 rounded-2xl rotate-[20deg]">NOPE</div>
         </div>
-        {/* Favourite Overlay */}
-        <div 
-          className="absolute inset-0 bg-yellow-500/30 rounded-2xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
+        <div
+          className="absolute inset-0 bg-yellow-500/30 rounded-3xl flex items-center justify-center pointer-events-none transition-opacity duration-150"
           style={{ opacity: flyOut === 'up' ? 1 : (flyOut ? 0 : favOpacity) }}
         >
-          <div className="border-4 border-yellow-500 text-yellow-500 text-6xl font-black p-4 rounded-xl">SUPER</div>
+          <div className="border-4 border-yellow-500 text-yellow-500 text-6xl font-black p-4 rounded-2xl">SUPER</div>
         </div>
       </>
     );
@@ -274,35 +438,51 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
     <div className="fixed inset-0 z-50 flex flex-col bg-neutral-950/90 backdrop-blur-md overflow-hidden text-neutral-800">
       {/* Header */}
       <div className="flex justify-between items-center px-4 sm:px-6 py-4 text-white shrink-0 border-b border-white/10">
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Status Badge */}
-          {hasApiKey ? (
-            <button
-              onClick={() => setShowKeyModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs rounded-full font-medium transition-colors cursor-pointer"
-              title="Click to edit Spoonacular API key"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              Live Online API
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowKeyModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs rounded-full font-medium transition-colors cursor-pointer"
-            >
-              <FiKey className="w-3.5 h-3.5" />
-              Connect Live API Key
-            </button>
-          )}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Spoonacular Status (80%) */}
+          <button
+            onClick={() => setShowKeyModal(true)}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full font-medium transition-colors cursor-pointer border ${
+              hasSpoonacularKey 
+                ? 'bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border-sky-500/40' 
+                : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-400 border-neutral-700'
+            }`}
+            title="80% of Discovery cards come from Spoonacular"
+          >
+            <FiGlobe className="w-3.5 h-3.5" />
+            <span>80% Web {hasSpoonacularKey ? '(Active)' : '(Need Key)'}</span>
+          </button>
 
-          {isLoading && (
-            <span className="text-xs text-neutral-400 flex items-center gap-1">
-              <FiLoader className="animate-spin text-orange-400" /> Loading recipes...
+          {/* Gemini AI Bank Status (20%) */}
+          <button
+            onClick={() => setShowKeyModal(true)}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full font-medium transition-colors cursor-pointer border ${
+              hasGeminiKey 
+                ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border-purple-500/40' 
+                : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-400 border-neutral-700'
+            }`}
+            title="20% of Discovery cards come from your Gemini AI spare bank"
+          >
+            <FiCpu className="w-3.5 h-3.5" />
+            <span>
+              20% Gemini {hasGeminiKey ? `(${geminiBank.length}/10 ready)` : '(Need Key)'}
+            </span>
+          </button>
+
+          {/* Activity indicators */}
+          {isGeneratingGemini && (
+            <span className="text-xs text-purple-300 flex items-center gap-1">
+              <FiLoader className="animate-spin text-purple-400" /> Generating 10 Gemini recipes...
+            </span>
+          )}
+          {isLoadingSpoonacular && !isGeneratingGemini && (
+            <span className="text-xs text-sky-300 flex items-center gap-1">
+              <FiLoader className="animate-spin text-sky-400" /> Fetching web recipes...
             </span>
           )}
 
-          {/* Filters */}
-          <div className="flex items-center gap-3 ml-2">
+          {/* Diet Filters */}
+          <div className="flex items-center gap-3 ml-2 border-l border-white/20 pl-3">
             <label className="flex items-center gap-1.5 cursor-pointer text-neutral-300 hover:text-white text-xs">
               <input
                 type="checkbox"
@@ -340,16 +520,18 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
             <div className="text-6xl mb-4">🍽️</div>
             <h3 className="text-2xl font-bold mb-2">You're all caught up!</h3>
             <p className="text-neutral-300 text-sm mb-4">
-              {hasApiKey
-                ? "Fetching more recipes from the web..."
-                : "Connect a free Spoonacular API key for unlimited live web recipes, or adjust your filters."}
+              {!hasSpoonacularKey && !hasGeminiKey
+                ? "Connect your free Spoonacular or Gemini API keys to discover live web and AI recipes."
+                : isGeneratingGemini
+                ? "Generating 10 fresh recipes with Gemini in the background..."
+                : "Loading next batch of recipes..."}
             </p>
-            {!hasApiKey && (
+            {(!hasSpoonacularKey || !hasGeminiKey) && (
               <button
                 onClick={() => setShowKeyModal(true)}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-xl transition-colors shadow-lg cursor-pointer"
+                className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg cursor-pointer"
               >
-                Connect Free API Key
+                Connect API Keys
               </button>
             )}
           </div>
@@ -358,6 +540,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
             {cards.slice(0, 3).reverse().map((card, idx) => {
               const realIndex = cards.slice(0, 3).length - 1 - idx;
               const isTop = realIndex === 0;
+              const isGeminiCard = !!card._isGeminiCandidate;
 
               return (
                 <div
@@ -373,7 +556,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
                   onTouchMove={isTop ? onTouchMove : undefined}
                   onTouchEnd={isTop ? onTouchEnd : undefined}
                 >
-                  {/* Image */}
+                  {/* Image & Header */}
                   <div className="relative h-3/5 w-full bg-neutral-100 shrink-0">
                     {card.image ? (
                       <img
@@ -383,17 +566,29 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
                         draggable={false}
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center text-6xl">
-                        🍲
+                      <div className={`w-full h-full flex flex-col items-center justify-center ${
+                        isGeminiCard 
+                          ? 'bg-gradient-to-br from-purple-100 via-indigo-50 to-pink-100' 
+                          : 'bg-gradient-to-br from-orange-100 to-amber-100'
+                      }`}>
+                        <span className="text-6xl mb-2">{isGeminiCard ? '✨' : '🍲'}</span>
+                        {isGeminiCard && (
+                          <span className="text-xs font-semibold text-purple-700 uppercase tracking-widest">
+                            Gemini AI Custom Creation
+                          </span>
+                        )}
                       </div>
                     )}
 
-                    {/* Source & Tags */}
+                    {/* Origin Badge */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-md ${
-                        card.source === 'online' ? 'bg-sky-500 text-white' : 'bg-purple-600 text-white'
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full shadow-md flex items-center gap-1 ${
+                        isGeminiCard 
+                          ? 'bg-purple-600 text-white' 
+                          : 'bg-sky-500 text-white'
                       }`}>
-                        {card.source === 'online' ? 'Online' : 'AI Generated'}
+                        {isGeminiCard ? <FiCpu /> : <FiGlobe />}
+                        {isGeminiCard ? 'Gemini AI' : 'Spoonacular Web'}
                       </span>
                       {card.isVegan && <span className="bg-green-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-md">Vegan</span>}
                       {card.isQuick && <span className="bg-orange-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-md">Quick</span>}
@@ -438,7 +633,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
           <button
             onClick={() => handleAction('skip')}
             className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-red-500 shadow-xl hover:scale-110 hover:bg-red-50 transition-all focus:outline-none cursor-pointer"
-            title="Skip (Swipe Left)"
+            title="Swipe Left: Discard (permanently deleted if Gemini recipe)"
           >
             <FiX size={30} strokeWidth={3} />
           </button>
@@ -446,7 +641,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
           <button
             onClick={() => handleAction('favourite')}
             className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-yellow-500 shadow-xl hover:scale-110 hover:bg-yellow-50 transition-all focus:outline-none cursor-pointer"
-            title="Favourite & Save (Swipe Up)"
+            title="Swipe Up: Superlike & Save to Recipes"
           >
             <FiStar size={22} strokeWidth={3} fill="currentColor" />
           </button>
@@ -454,7 +649,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
           <button
             onClick={() => handleAction('like')}
             className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-green-500 shadow-xl hover:scale-110 hover:bg-green-50 transition-all focus:outline-none cursor-pointer"
-            title="Like & Save (Swipe Right)"
+            title="Swipe Right: Like & Save to Recipes"
           >
             <FiHeart size={30} strokeWidth={3} fill="currentColor" />
           </button>
@@ -464,10 +659,10 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
       {/* API Key Connection Modal */}
       {showKeyModal && (
         <div className="fixed inset-0 z-60 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-neutral-100 text-neutral-800">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-neutral-100 text-neutral-800 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2 text-neutral-900">
-                <FiKey className="text-orange-500" /> Spoonacular API Key
+                <FiKey className="text-orange-500" /> Connect API Keys
               </h3>
               <button onClick={() => setShowKeyModal(false)} className="text-neutral-400 hover:text-neutral-600 p-1 cursor-pointer">
                 <FiX size={20} />
@@ -475,51 +670,84 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
             </div>
 
             <p className="text-sm text-neutral-600 mb-4 leading-relaxed">
-              Connect your free Spoonacular API key to unlock hundreds of thousands of live online vegetarian recipes for infinite swipe discovery!
+              Discovery Swipe blends <strong>80% live online recipes</strong> from Spoonacular with <strong>20% unique, customized recipes</strong> generated by Google Gemini.
             </p>
 
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3.5 mb-4 text-xs text-orange-900 leading-relaxed">
-              <span className="font-bold text-sm">How to get your free key (takes ~60 seconds):</span>
-              <ol className="list-decimal list-inside mt-1.5 space-y-1">
-                <li>Create a free account at Spoonacular.</li>
-                <li>Copy your API key from the dashboard.</li>
-                <li>Paste it below and click Save. 150 requests/day free forever.</li>
-              </ol>
-              <a
-                href="https://spoonacular.com/food-api/console#Dashboard"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-orange-700 underline mt-2 hover:text-orange-900"
-              >
-                Open Spoonacular Console <FiExternalLink />
-              </a>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                Your Spoonacular API Key
-              </label>
-              <div className="relative">
+            {/* Google Gemini Key */}
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h4 className="font-bold text-sm text-purple-900 flex items-center gap-1.5">
+                    <FiCpu /> Google Gemini API Key (20% Feed)
+                  </h4>
+                  <p className="text-xs text-purple-700">Generates 10-recipe spare banks tailored without duplicates.</p>
+                </div>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-semibold text-purple-700 hover:text-purple-900 underline flex items-center gap-1"
+                >
+                  Get Free Key <FiExternalLink />
+                </a>
+              </div>
+              <div className="relative mt-2">
                 <input
-                  type={showKeyText ? 'text' : 'password'}
-                  placeholder="Paste API key here..."
-                  value={inputKey}
-                  onChange={e => setInputKey(e.target.value)}
-                  className="w-full px-3 py-2.5 pr-10 border border-neutral-300 rounded-lg text-sm bg-white text-neutral-900 placeholder-neutral-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  type={showGemKeyText ? 'text' : 'password'}
+                  placeholder="Paste Gemini API key..."
+                  value={inputGeminiKey}
+                  onChange={e => setInputGeminiKey(e.target.value)}
+                  className="w-full px-3 py-2 pr-10 border border-purple-300 rounded-lg text-sm bg-white text-neutral-900 placeholder-neutral-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowKeyText(!showKeyText)}
-                  className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                  onClick={() => setShowGemKeyText(!showGemKeyText)}
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 cursor-pointer"
                 >
-                  {showKeyText ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                  {showGemKeyText ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Spoonacular Key */}
+            <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h4 className="font-bold text-sm text-sky-900 flex items-center gap-1.5">
+                    <FiGlobe /> Spoonacular API Key (80% Feed)
+                  </h4>
+                  <p className="text-xs text-sky-700">Fetches live online recipes with photography and timers.</p>
+                </div>
+                <a
+                  href="https://spoonacular.com/food-api/console#Dashboard"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-semibold text-sky-700 hover:text-sky-900 underline flex items-center gap-1"
+                >
+                  Get Free Key <FiExternalLink />
+                </a>
+              </div>
+              <div className="relative mt-2">
+                <input
+                  type={showSpoonKeyText ? 'text' : 'password'}
+                  placeholder="Paste Spoonacular API key..."
+                  value={inputSpoonacularKey}
+                  onChange={e => setInputSpoonacularKey(e.target.value)}
+                  className="w-full px-3 py-2 pr-10 border border-sky-300 rounded-lg text-sm bg-white text-neutral-900 placeholder-neutral-400 focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSpoonKeyText(!showSpoonKeyText)}
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                >
+                  {showSpoonKeyText ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                 </button>
               </div>
             </div>
 
             {keySavedMessage && (
               <div className="flex items-center gap-1.5 text-sm text-green-600 font-medium mb-4">
-                <FiCheck /> API key saved! Loading live recipes...
+                <FiCheck /> {keySavedMessage}
               </div>
             )}
 
@@ -533,11 +761,11 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
               </button>
               <button
                 type="button"
-                onClick={handleSaveApiKey}
-                disabled={!inputKey.trim()}
-                className="px-5 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-neutral-300 text-white text-sm font-semibold rounded-lg transition-colors shadow-md cursor-pointer"
+                onClick={handleSaveKeys}
+                disabled={!inputSpoonacularKey.trim() && !inputGeminiKey.trim()}
+                className="px-5 py-2 bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-300 text-white text-sm font-semibold rounded-lg transition-colors shadow-md cursor-pointer"
               >
-                Save &amp; Discover
+                Save Keys
               </button>
             </div>
           </div>

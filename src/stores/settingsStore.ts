@@ -18,6 +18,7 @@ interface SettingsState {
   setUnitSystem: (system: UnitSystem) => Promise<void>;
   setShoppingDay: (day: DayOfWeek) => Promise<void>;
   setApiKey: (key: string) => Promise<void>;
+  setGeminiApiKey: (key: string) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -89,6 +90,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     localStorage.setItem('spoonacular_api_key', key);
     set((state) => ({
       settings: { ...state.settings, spoonacularApiKey: key },
+    }));
+  },
+
+  setGeminiApiKey: async (key) => {
+    await dbUpdateSettings({ geminiApiKey: key });
+    localStorage.setItem('gemini_api_key', key);
+    set((state) => ({
+      settings: { ...state.settings, geminiApiKey: key },
     }));
   },
 }));
