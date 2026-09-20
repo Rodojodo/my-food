@@ -109,16 +109,11 @@ export async function getRandomRecipes(count: number, options: { vegan?: boolean
   const tags = options.vegan ? 'vegan' : 'vegetarian';
   const url = `https://api.spoonacular.com/recipes/random?number=${count}&tags=${tags}&apiKey=${apiKey}`;
 
-  const cacheKey = `random:${count}:${tags}`;
-  if (cache.has(cacheKey)) return cache.get(cacheKey)!;
-
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`API request failed: ${res.status}`);
     const data = await res.json();
-    const recipes = (data.recipes || []).map(mapSpoonacularRecipe);
-    cache.set(cacheKey, recipes);
-    return recipes;
+    return (data.recipes || []).map(mapSpoonacularRecipe);
   } catch (error) {
     console.error('Error getting random recipes:', error);
     return [];
