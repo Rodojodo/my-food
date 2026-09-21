@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiCalendar, FiList, FiAlertTriangle, FiBookOpen, FiZap } from 'react-icons/fi';
+import { FiPlus, FiCalendar, FiList, FiAlertTriangle, FiBookOpen, FiZap, FiRefreshCw } from 'react-icons/fi';
 import { format, differenceInDays } from 'date-fns';
 import { usePlanStore } from '../../stores/planStore';
 import { useRecipeStore } from '../../stores/recipeStore';
@@ -9,11 +9,12 @@ import type { DayOfWeek } from '../../types/types';
 import { DEFAULT_MEAL_CONFIG, DAYS_OF_WEEK } from '../../types/types';
 
 export default function Dashboard() {
-  const { semesterPlan, weekPlans, createSemesterPlan, getProgress, getMealVarietyWarnings, autoFillAllWeeks } = usePlanStore();
+  const { semesterPlan, weekPlans, createSemesterPlan, getProgress, getMealVarietyWarnings, autoFillAllWeeks, regenerateAllWeeks } = usePlanStore();
   const { recipes, getWeightedRandomRecipes } = useRecipeStore();
   const { settings } = useSettingsStore();
 
   const [isCreating, setIsCreating] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [formName, setFormName] = useState('Autumn Semester 2026');
   const [formDate, setFormDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [formWeeks, setFormWeeks] = useState(16);
@@ -35,6 +36,20 @@ export default function Dashboard() {
   const handleAutoFill = async () => {
     if (confirm('This will fill all empty slots in unlocked weeks with random recipes. Continue?')) {
       await autoFillAllWeeks(getWeightedRandomRecipes);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!confirm('Are you sure you want to completely regenerate the meal plan? All meal slots will be refreshed with newly selected recipes.')) {
+      return;
+    }
+    const hasLocked = weekPlans.some(w => w.isLocked);
+    const includeLocked = hasLocked && confirm('Would you also like to regenerate locked weeks?');
+    try {
+      setIsRegenerating(true);
+      await regenerateAllWeeks(getWeightedRandomRecipes, { includeLocked });
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -162,8 +177,18 @@ export default function Dashboard() {
           
           <div className="flex flex-wrap gap-2 pt-2">
             <button 
+              onClick={handleRegenerate}
+              disabled={isRegenerating}
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-xs"
+              title="Completely regenerate meal plan with fresh recipes"
+            >
+              <FiRefreshCw className={isRegenerating ? "animate-spin" : ""} />
+              <span>{isRegenerating ? "Regenerating..." : "Regenerate Meal Plan"}</span>
+            </button>
+            <button 
               onClick={handleAutoFill}
-              className="flex items-center gap-2 bg-warm-100 hover:bg-warm-200 dark:bg-warm-800 dark:hover:bg-warm-700 text-warm-800 dark:text-warm-200 px-3 py-1.5 rounded-lg text-sm transition-colors"
+              disabled={isRegenerating}
+              className="flex items-center gap-2 bg-warm-100 hover:bg-warm-200 dark:bg-warm-800 dark:hover:bg-warm-700 disabled:opacity-50 text-warm-800 dark:text-warm-200 px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer"
             >
               <FiZap /> Auto-Fill Empty Slots
             </button>

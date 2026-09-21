@@ -79,6 +79,8 @@ interface PlanState {
   // Bulk operations
   autoFillWeek: (weekNumber: number, getRandomRecipes: (count: number, options?: { preferQuick?: boolean; veganOnly?: boolean }) => import('../types/types').Recipe[]) => Promise<void>;
   autoFillAllWeeks: (getRandomRecipes: (count: number, options?: { preferQuick?: boolean; veganOnly?: boolean }) => import('../types/types').Recipe[]) => Promise<void>;
+  regenerateWeek: (weekNumber: number, getRandomRecipes: (count: number, options?: { preferQuick?: boolean; veganOnly?: boolean }) => import('../types/types').Recipe[]) => Promise<void>;
+  regenerateAllWeeks: (getRandomRecipes: (count: number, options?: { preferQuick?: boolean; veganOnly?: boolean }) => import('../types/types').Recipe[], options?: { includeLocked?: boolean }) => Promise<void>;
 
   // Stats
   getProgress: () => { filled: number; total: number; percentage: number };
@@ -363,6 +365,83 @@ export const usePlanStore = create<PlanState>((set, get) => ({
         await get().autoFillWeek(wp.weekNumber, getRandomRecipes);
       }
     }
+  },
+
+  regenerateWeek: async (weekNumber, getRandomRecipes) => {
+    const wp = get().weekPlans.find((w) => w.weekNumber === weekNumber);
+    if (!wp || wp.isLocked) return;
+
+    // Reset all meal slots for this week
+    const clearedSlots = wp.mealSlots.map((s) => ({ ...s, recipeId: null }));
+
+    const quickSlots = clearedSlots.filter((s) => s.preferQuick);
+    const regularSlots = clearedSlots.filter((s) => !s.preferQuick);
+
+    const quickRecipes = quickSlots.length > 0
+      ? getRandomRecipes(quickSlots.length, { preferQuick: true })
+      : [];
+    const regularRecipes = regularSlots.length > 0
+      ? getRandomRecipes(regularSlots.length)
+      : [];
+
+    let qIdx = 0;
+    let rIdx = 0;
+    const newSlots = clearedSlots.map((slot) => {
+      if (slot.preferQuick && qIdx < quickRecipes.length) {
+        return { ...slot, recipeId: quickRecipes[qIdx++].id };
+      } else if (rIdx < regularRecipes.length) {
+        return { ...slot, recipeId: regularRecipes[rIdx++].id };
+      }
+      return slot;
+    });
+
+    await db.weekPlans.update(wp.id, { mealSlots: newSlots });
+    set((state) => ({
+      weekPlans: state.weekPlans.map((w) =>
+        w.weekNumber === weekNumber ? { ...w, mealSlots: newSlots } : w
+      ),
+    }));
+  },
+
+  regenerateAllWeeks: async (getRandomRecipes, options = {}) => {
+    const { weekPlans } = get();
+    const updatedPlans: WeekPlan[] = [];
+
+    for (const wp of weekPlans) {
+      if (wp.isLocked && !options.includeLocked) {
+        updatedPlans.push(wp);
+        continue;
+      }
+
+      // Reset all slots for this week
+      const clearedSlots = wp.mealSlots.map((s) => ({ ...s, recipeId: null }));
+
+      const quickSlots = clearedSlots.filter((s) => s.preferQuick);
+      const regularSlots = clearedSlots.filter((s) => !s.preferQuick);
+
+      const quickRecipes = quickSlots.length > 0
+        ? getRandomRecipes(quickSlots.length, { preferQuick: true })
+        : [];
+      const regularRecipes = regularSlots.length > 0
+        ? getRandomRecipes(regularSlots.length)
+        : [];
+
+      let qIdx = 0;
+      let rIdx = 0;
+      const newSlots = clearedSlots.map((slot) => {
+        if (slot.preferQuick && qIdx < quickRecipes.length) {
+          return { ...slot, recipeId: quickRecipes[qIdx++].id };
+        } else if (rIdx < regularRecipes.length) {
+          return { ...slot, recipeId: regularRecipes[rIdx++].id };
+        }
+        return slot;
+      });
+
+      await db.weekPlans.update(wp.id, { mealSlots: newSlots });
+      updatedPlans.push({ ...wp, mealSlots: newSlots });
+    }
+
+    set({ weekPlans: updatedPlans });
   },
 
   getProgress: () => {

@@ -238,18 +238,25 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
       }
     }
 
-    // Build weighted array: favourites appear 3x
+    if (pool.length === 0) return [];
+
+    // Build weighted array: favourites are 1.5x more likely to be selected than normal recipes (weight 3 vs 2)
     const weighted: Recipe[] = [];
     for (const recipe of pool) {
-      weighted.push(recipe);
       if (recipe.isFavourite) {
-        weighted.push(recipe);
-        weighted.push(recipe);
+        weighted.push(recipe, recipe, recipe); // 3 entries (weight 1.5)
+      } else {
+        weighted.push(recipe, recipe); // 2 entries (weight 1.0)
       }
     }
 
-    // Shuffle and pick
-    const shuffled = [...weighted].sort(() => Math.random() - 0.5);
+    // Modern Fisher-Yates shuffle for unbiased random distribution
+    const shuffled = [...weighted];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
     const seen = new Set<string>();
     const result: Recipe[] = [];
 
@@ -258,6 +265,16 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
       seen.add(recipe.id);
       result.push(recipe);
       if (result.length >= count) break;
+    }
+
+    // If pool has fewer unique recipes than needed count, allow repeating to fill requested slots
+    if (result.length < count && pool.length > 0) {
+      while (result.length < count) {
+        for (const recipe of shuffled) {
+          result.push(recipe);
+          if (result.length >= count) break;
+        }
+      }
     }
 
     return result;

@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { FiLock, FiUnlock, FiCalendar, FiZap } from 'react-icons/fi';
+import { FiLock, FiUnlock, FiCalendar, FiZap, FiRefreshCw } from 'react-icons/fi';
 import { usePlanStore } from '../../stores/planStore';
 import { useRecipeStore } from '../../stores/recipeStore';
 import { format, addDays, parseISO } from 'date-fns';
 
 export default function SemesterCalendar() {
   const navigate = useNavigate();
-  const { semesterPlan, weekPlans, lockWeek, autoFillAllWeeks, getProgress } = usePlanStore();
+  const { semesterPlan, weekPlans, lockWeek, autoFillAllWeeks, regenerateAllWeeks, getProgress } = usePlanStore();
   const { getRecipeById, getWeightedRandomRecipes } = useRecipeStore();
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   if (!semesterPlan) {
     return <Navigate to="/" replace />;
@@ -15,6 +17,30 @@ export default function SemesterCalendar() {
 
   const handleAutoFill = async () => {
     await autoFillAllWeeks(getWeightedRandomRecipes);
+  };
+
+  const handleRegenerate = async () => {
+    const hasLocked = weekPlans.some(w => w.isLocked);
+    let includeLocked = false;
+
+    if (hasLocked) {
+      const proceed = window.confirm(
+        'Some weeks are locked.\n\nClick OK to regenerate the meal plan.\nClick Cancel to keep the current plan.'
+      );
+      if (!proceed) return;
+      includeLocked = window.confirm('Would you also like to regenerate the locked weeks?');
+    } else {
+      if (!window.confirm('Are you sure you want to completely regenerate the meal plan? All meal slots will be refreshed with newly selected recipes.')) {
+        return;
+      }
+    }
+
+    try {
+      setIsRegenerating(true);
+      await regenerateAllWeeks(getWeightedRandomRecipes, { includeLocked });
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   const handleExport = () => {
@@ -35,7 +61,7 @@ export default function SemesterCalendar() {
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 w-64 h-3 bg-stone-100 rounded-full overflow-hidden border border-stone-200">
               <div 
-                className="h-full bg-emerald-500 transition-all duration-500"
+                className="h-full bg-emerald-500 transition-all duration-500" 
                 style={{ width: `${progress.percentage}%` }}
               />
             </div>
@@ -43,16 +69,27 @@ export default function SemesterCalendar() {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button 
+            onClick={handleRegenerate}
+            disabled={isRegenerating}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors cursor-pointer shadow-xs"
+            title="Completely regenerate meal plan with fresh recipes"
+          >
+            <FiRefreshCw className={isRegenerating ? "animate-spin" : ""} />
+            <span>{isRegenerating ? "Regenerating..." : "Regenerate Plan"}</span>
+          </button>
           <button 
             onClick={handleAutoFill}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md font-medium transition-colors"
+            disabled={isRegenerating}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-md font-medium transition-colors cursor-pointer"
+            title="Fill only empty slots"
           >
-            <FiZap /> Auto-Fill All
+            <FiZap /> Auto-Fill Empty
           </button>
           <button 
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-md font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-md font-medium transition-colors cursor-pointer"
           >
             <FiCalendar /> Export Full
           </button>

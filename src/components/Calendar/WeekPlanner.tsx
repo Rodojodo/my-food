@@ -60,7 +60,7 @@ export default function WeekPlanner() {
   const navigate = useNavigate();
   const num = parseInt(weekNumber || '1', 10);
   
-  const { weekPlans, semesterPlan, updateMealConfig, autoFillWeek, assignRecipe, removeRecipe, swapMeals } = usePlanStore();
+  const { weekPlans, semesterPlan, updateMealConfig, autoFillWeek, regenerateWeek, assignRecipe, removeRecipe, swapMeals } = usePlanStore();
   const { getRecipeById, getWeightedRandomRecipes } = useRecipeStore();
   
   const [showConfigEditor, setShowConfigEditor] = useState(false);
@@ -80,10 +80,18 @@ export default function WeekPlanner() {
   const nextWeek = weekPlans.find(w => w.weekNumber === num + 1);
 
   const handleShuffleWeek = async () => {
-    // Clear all unpinned meals then autofill
-    // For simplicity, we just autofill over empty slots. If we want true shuffle, we'd clear them first.
-    // Assuming non-locked slots can be cleared. We don't have a clear function in store, so let's just trigger autofill on empty ones.
     await autoFillWeek(num, getWeightedRandomRecipes);
+  };
+
+  const handleRegenerateWeek = async () => {
+    if (weekPlan.isLocked) {
+      alert('This week is locked. Unlock it first to regenerate meals.');
+      return;
+    }
+    if (!confirm(`Regenerate all meals for Week ${num}? Current meal assignments in this week will be replaced with fresh selections.`)) {
+      return;
+    }
+    await regenerateWeek(num, getWeightedRandomRecipes);
   };
 
   const configSummary = weekPlan.mealConfig.slots.map(s => `${s.count} meals × ${s.servings} servings`).join(' + ');
@@ -139,8 +147,16 @@ export default function WeekPlanner() {
             <button 
               onClick={handleShuffleWeek}
               className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+              title="Fill empty slots in this week"
             >
-              <FiShuffle /> Shuffle Empty
+              <FiShuffle /> Fill Empty
+            </button>
+            <button 
+              onClick={handleRegenerateWeek}
+              className="px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+              title="Regenerate all meals in this week"
+            >
+              <FiRefreshCw /> Regenerate Week
             </button>
             <button 
               onClick={() => alert('Exporting week to calendar...')}
