@@ -1,4 +1,4 @@
-import { FiClock, FiHeart, FiStar } from 'react-icons/fi';
+import { FiClock, FiHeart, FiStar, FiEdit2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { Recipe } from '../../types/types';
 import { getSourceLabel } from '../../types/types';
@@ -26,6 +26,11 @@ const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
     await toggleFavourite(recipe.id);
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/recipe/${recipe.id}?edit=true`);
+  };
+
   return (
     <div 
       onClick={handleClick}
@@ -37,12 +42,22 @@ const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
         ) : (
           <span>🍲</span>
         )}
-        <button 
-          onClick={handleFavouriteClick}
-          className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full hover:bg-white transition-colors"
-        >
-          <FiHeart className={`w-5 h-5 ${recipe.isFavourite ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
-        </button>
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          <button 
+            onClick={handleEditClick}
+            className="p-2 bg-white/80 backdrop-blur rounded-full hover:bg-white text-gray-600 hover:text-orange-600 transition-colors shadow-xs"
+            title="Edit recipe"
+          >
+            <FiEdit2 className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={handleFavouriteClick}
+            className="p-2 bg-white/80 backdrop-blur rounded-full hover:bg-white transition-colors shadow-xs"
+            title={recipe.isFavourite ? 'Remove from favourites' : 'Save as favourite'}
+          >
+            <FiHeart className={`w-5 h-5 ${recipe.isFavourite ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
+          </button>
+        </div>
       </div>
       
       <div className="p-4 flex flex-col flex-grow">
