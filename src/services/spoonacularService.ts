@@ -67,7 +67,7 @@ function mapSpoonacularRecipe(data: any): Recipe {
     ].filter(Boolean),
     cuisine: (data.cuisines && data.cuisines[0]) || 'International',
     isVegan: !!data.vegan,
-    isQuick: totalTime <= 30,
+    isQuick: Boolean(data.isQuick),
     isFavourite: false,
     rating: data.spoonacularScore ? Math.round((data.spoonacularScore / 100) * 5) : 0,
     source: 'online' as const,

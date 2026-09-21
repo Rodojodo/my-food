@@ -122,7 +122,7 @@ export function parseRecipeJSON(json: string): Recipe | null {
       tags: Array.isArray(data.tags) ? data.tags : ['vegetarian'],
       cuisine: data.cuisine || 'International',
       isVegan: !!data.isVegan,
-      isQuick: totalTime <= 30,
+      isQuick: Boolean(data.isQuick),
       isFavourite: false,
       rating: 0,
       source: 'imported',

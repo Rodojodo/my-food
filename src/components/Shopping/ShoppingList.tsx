@@ -68,15 +68,12 @@ export default function ShoppingList() {
   });
 
   // Group by category
-  const grouped = useMemo(() => {
-    const map: Record<string, ShoppingItem[]> = {};
-    itemsToList.forEach(item => {
-      const cat = item.category || 'other';
-      if (!map[cat]) map[cat] = [];
-      map[cat].push(item);
-    });
-    return map;
-  }, [itemsToList]);
+  const grouped: Record<string, ShoppingItem[]> = {};
+  itemsToList.forEach(item => {
+    const cat = item.category || 'other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(item);
+  });
 
   const toggleCheck = (id: string) => {
     const newChecked = new Set(checkedItems);

@@ -31,6 +31,7 @@ interface RecipeState {
   updateRecipe: (id: string, updates: Partial<Recipe>) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
   toggleFavourite: (id: string) => Promise<void>;
+  toggleQuick: (id: string) => Promise<void>;
   setRating: (id: string, rating: number) => Promise<void>;
   rejectRecipe: (id: string) => Promise<void>;
   addNote: (id: string, note: string) => Promise<void>;
@@ -112,6 +113,16 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
     await db.recipes.update(id, { isFavourite: newFav });
     set((state) => ({
       recipes: state.recipes.map((r) => (r.id === id ? { ...r, isFavourite: newFav } : r)),
+    }));
+  },
+
+  toggleQuick: async (id) => {
+    const recipe = get().recipes.find((r) => r.id === id);
+    if (!recipe) return;
+    const isQuick = !recipe.isQuick;
+    await db.recipes.update(id, { isQuick });
+    set((state) => ({
+      recipes: state.recipes.map((r) => (r.id === id ? { ...r, isQuick } : r)),
     }));
   },
 

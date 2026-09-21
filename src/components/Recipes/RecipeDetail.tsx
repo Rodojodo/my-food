@@ -9,7 +9,7 @@ import { getSourceLabel } from '../../types/types';
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getRecipeById, toggleFavourite, setRating, deleteRecipe, isInitialized, loadRecipes } = useRecipeStore();
+  const { getRecipeById, toggleFavourite, toggleQuick, setRating, deleteRecipe, isInitialized, loadRecipes } = useRecipeStore();
   const { settings } = useSettingsStore();
   
   const [servings, setServings] = useState<number>(4);
@@ -99,9 +99,22 @@ const RecipeDetail = () => {
               {recipe.isVegan && (
                 <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-md font-medium">Vegan</span>
               )}
-              {recipe.isQuick && (
-                <span className="px-2.5 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-md font-medium">Quick</span>
-              )}
+              <label 
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-medium cursor-pointer transition-colors border select-none ${
+                  recipe.isQuick 
+                    ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-xs' 
+                    : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                }`}
+                title="Toggle fast recipe"
+              >
+                <input
+                  type="checkbox"
+                  checked={recipe.isQuick}
+                  onChange={() => toggleQuick(recipe.id)}
+                  className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>Fast</span>
+              </label>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 leading-tight">{recipe.name}</h1>
             <p className="text-gray-600 text-lg leading-relaxed">{recipe.description}</p>

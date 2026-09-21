@@ -499,7 +499,7 @@ export default function SwipeDiscovery({ isOpen, onClose }: SwipeDiscoveryProps)
                 onChange={e => setQuickOnly(e.target.checked)}
                 className="accent-orange-500 rounded w-3.5 h-3.5"
               />
-              Quick (&le;30m)
+              Fast
             </label>
           </div>
         </div>

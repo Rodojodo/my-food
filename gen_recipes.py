@@ -57,7 +57,7 @@ def make_ingredient(name, amount, unit, category, is_common=False, is_nut=False,
 
 def generate_recipe(name, desc, cuisine, is_vegan, prep, cook, index):
     total = prep + cook
-    is_quick = total <= 30
+    is_quick = False
     
     ingredients = [
         make_ingredient("Olive oil", 1, "tbsp", "oils", True),

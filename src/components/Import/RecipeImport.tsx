@@ -26,6 +26,7 @@ const RecipeImport = () => {
     prepTime: 10,
     cookTime: 20,
     isVegan: false,
+    isQuick: false,
     ingredients: [{ name: '', amount: 1, unit: 'g', category: 'other', isCommon: false, isNut: false }],
     method: [{ stepNumber: 1, instruction: '' }],
     image: '',
@@ -38,7 +39,7 @@ const RecipeImport = () => {
       const recipeToSave = {
         ...manualRecipe,
         totalTime,
-        isQuick: totalTime <= 30,
+        isQuick: Boolean(manualRecipe.isQuick),
         tags: [],
         source: 'imported' as const,
       } as Parameters<typeof addRecipe>[0];
@@ -73,7 +74,7 @@ const RecipeImport = () => {
       const recipeToSave = {
         ...parsed,
         totalTime,
-        isQuick: totalTime <= 30,
+        isQuick: Boolean(parsed.isQuick),
         tags: parsed.tags || [],
         source: 'imported' as const,
         unitSystem: parsed.unitSystem || 'metric',
@@ -136,10 +137,14 @@ const RecipeImport = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Cook Time (m)</label>
               <input type="number" className="w-full border-gray-300 rounded-lg p-2 border bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:outline-none" value={manualRecipe.cookTime} onChange={e => setManualRecipe({...manualRecipe, cookTime: Number(e.target.value)})} />
             </div>
-            <div className="flex items-center mt-6">
+            <div className="flex items-center gap-6 mt-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="rounded text-green-500 w-4 h-4" checked={manualRecipe.isVegan} onChange={e => setManualRecipe({...manualRecipe, isVegan: e.target.checked})} />
                 <span className="text-sm font-medium text-gray-700">Vegan</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="rounded text-amber-500 w-4 h-4" checked={manualRecipe.isQuick || false} onChange={e => setManualRecipe({...manualRecipe, isQuick: e.target.checked})} />
+                <span className="text-sm font-medium text-gray-700">Fast</span>
               </label>
             </div>
           </div>

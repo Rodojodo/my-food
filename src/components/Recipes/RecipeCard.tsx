@@ -11,7 +11,7 @@ interface RecipeCardProps {
 
 const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
   const navigate = useNavigate();
-  const { toggleFavourite } = useRecipeStore();
+  const { toggleFavourite, toggleQuick } = useRecipeStore();
 
   const handleClick = () => {
     if (onSelect) {
@@ -59,11 +59,26 @@ const RecipeCard = ({ recipe, onSelect }: RecipeCardProps) => {
               Vegan
             </span>
           )}
-          {recipe.isQuick && (
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-md font-medium">
-              Quick
-            </span>
-          )}
+          <label 
+            onClick={(e) => e.stopPropagation()} 
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs rounded-md font-medium cursor-pointer transition-colors border select-none ${
+              recipe.isQuick 
+                ? 'bg-amber-100 text-amber-800 border-amber-300' 
+                : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+            }`}
+            title="Mark as Fast recipe"
+          >
+            <input
+              type="checkbox"
+              checked={recipe.isQuick}
+              onChange={(e) => {
+                e.stopPropagation();
+                toggleQuick(recipe.id);
+              }}
+              className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer"
+            />
+            Fast
+          </label>
           <span className="px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-md font-medium capitalize">
             {recipe.cuisine}
           </span>

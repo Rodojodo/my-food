@@ -78,7 +78,7 @@ export interface Recipe {
   tags: string[];
   cuisine: string;
   isVegan: boolean;
-  isQuick: boolean;        // totalTime <= 30
+  isQuick: boolean;        // Fast recipe flag (manually set via checkbox)
   isFavourite: boolean;
   rating: number;          // 1-5
   source: RecipeSource;

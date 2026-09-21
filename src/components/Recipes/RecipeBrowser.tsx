@@ -93,9 +93,9 @@ const RecipeBrowser: React.FC = () => {
               type="checkbox" 
               checked={filters.quickOnly} 
               onChange={handleQuickToggle}
-              className="rounded text-yellow-500 focus:ring-yellow-500 w-4 h-4"
+              className="rounded text-amber-500 focus:ring-amber-500 w-4 h-4"
             />
-            Quick (&le;30m)
+            Fast
           </label>
 
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:text-gray-900">
